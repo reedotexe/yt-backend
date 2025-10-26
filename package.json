@@ -1,0 +1,11 @@
+{
+  "name": "youtube-backend",
+  "version": "1.0.0",
+  "description": "yt backend clone",
+  "main": "index.js",
+  "scripts": {
+    "test": "nodemon index.js"
+  },
+  "author": "reedu",
+  "license": "ISC"
+}
