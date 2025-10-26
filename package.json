@@ -3,9 +3,13 @@
   "version": "1.0.0",
   "description": "yt backend clone",
   "main": "index.js",
+  "type": "module",
   "scripts": {
-    "test": "nodemon index.js"
+    "dev": "nodemon src/index.js"
   },
   "author": "reedu",
-  "license": "ISC"
+  "license": "ISC",
+  "devDependencies": {
+    "nodemon": "^3.1.10"
+  }
 }
