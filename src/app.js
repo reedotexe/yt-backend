@@ -21,7 +21,7 @@ app.use(express.static('public'));
 
 
 const temp = process.env.PORT
-console.log("PORT:", temp);
+// console.log("PORT:", temp);
 
 // Routes
 import userRouter from './routes/user.route.js';

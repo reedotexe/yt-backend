@@ -8,7 +8,7 @@ dotenv.config(
 );
 
 const PORT = process.env.PORT || 3000;
-console.log(PORT);
+// console.log(PORT);
 
 connectDB()
 .then(() => {
@@ -19,3 +19,4 @@ connectDB()
 .catch((error) => {
     console.error("Database connection failed:", error);
 });
+ 
