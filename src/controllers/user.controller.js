@@ -26,6 +26,9 @@ const generateAccessAndRefreshTokens = async(userId) => {
     }
 }
 
+
+
+
 const registerUser = asyncHandler(async (req, res) => {
     // Registration logic here
     
@@ -156,7 +159,6 @@ const loginUser = asyncHandler(async (req, res) => {
 });
 
 
-
 const logoutUser = asyncHandler(async (req, res) => {
     // Logout logic here
 
@@ -225,6 +227,8 @@ const refreshAccessToken = asyncHandler(async (req, res) => {
             null,
             'Access token refreshed successfully',
         ));
+
+        
     } catch (error) {
         console.error('Error refreshing access token:', error);
         throw new ApiError(401, 'Could not refresh access token. Internal error occurred.');
@@ -234,4 +238,128 @@ const refreshAccessToken = asyncHandler(async (req, res) => {
 });
 
 
-export { registerUser, loginUser, logoutUser, refreshAccessToken };
+const changeCurrentPassword = asyncHandler(async (req, res) => {
+    // Change password logic here
+
+    const { currentPassword, newPassword, confirmPassword } = req.body;
+
+    if ( newPassword !== confirmPassword ) {
+        throw new ApiError(400, 'New password and confirm password do not match');
+    }
+
+    if ( currentPassword === newPassword ) {
+        throw new ApiError(400, 'New password must be different from the current password');
+    }
+
+    if (
+        [currentPassword, newPassword].some(field => !field || field.trim() === '')
+    ) {
+        throw new ApiError(400, 'Both current and new passwords are required');
+    }
+
+    const user = await User.findById(req.user._id);
+
+    const isPasswordValid = await user.isPasswordCorrect(currentPassword);
+    if (!isPasswordValid) {
+        throw new ApiError(401, 'Current password is incorrect');
+    }
+
+    user.password = newPassword;
+    await user.save( { validateBeforeSave: true });
+
+    return res.status(200).json(new ApiResponse(
+        200,
+        null,
+        'Password changed successfully',
+    ));
+
+});
+
+
+const getCurrentUser = asyncHandler(async (req, res) => {
+    // const user = await User.findById(req.user._id).select('-password -refreshToken');
+    // if (!user) {
+    //     throw new ApiError(404, 'User not found');
+    // }
+    return res.status(200).json(new ApiResponse(
+        200,
+        req.user,
+        'Current user retrieved successfully',
+    ));
+});
+
+
+const updateCurrentUser = asyncHandler(async (req, res) => {
+    // Update current user logic here
+
+    // use User.findByIdAndUpdate to update the user
+
+});
+
+
+const updateUserAvatar = asyncHandler(async (req, res) => {
+    // Update user avatar logic here
+    const avatarLocalPath = req.file?.path;
+    if (!avatarLocalPath) {
+        throw new ApiError(400, 'Avatar image is required.');
+    }
+
+    const avatar = await uploadToCloudinary(avatarLocalPath);
+    if (!avatar.url) {
+        throw new ApiError(500, 'Avatar upload failed.');
+    }
+    
+    const user = await User.findByIdAndUpdate(
+        req.user._id,
+        {
+            $set: {
+                avatar: avatar.url
+            }
+        },
+        { new: true }
+    ).select('-password');
+
+    return res
+    .status(200)
+    .json(new ApiResponse(
+        200,
+        user,
+        'Avatar updated successfully',
+    ));
+
+});
+
+
+const updateUserCoverImage = asyncHandler(async (req, res) => {
+    // Update user avatar logic here
+    const coverImageLocalPath = req.file?.path;
+    if (!coverImageLocalPath) {
+        throw new ApiError(400, 'Avatar image is required.');
+    }
+
+    const avatar = await uploadToCloudinary(coverImageLocalPath);
+    if (!avatar.url) {
+        throw new ApiError(500, 'Avatar upload failed.');
+    }
+    
+    const user = await User.findByIdAndUpdate(
+        req.user._id,
+        {
+            $set: {
+                coverImage: coverImage.url
+            }
+        },
+        { new: true }
+    ).select('-password');
+
+    return res
+    .status(200)
+    .json(new ApiResponse(
+        200,
+        user,
+        'Cover image updated successfully',
+    ));
+
+});
+
+export { registerUser, loginUser, logoutUser, refreshAccessToken, changeCurrentPassword, getCurrentUser, updateCurrentUser, updateUserAvatar, updateUserCoverImage };
